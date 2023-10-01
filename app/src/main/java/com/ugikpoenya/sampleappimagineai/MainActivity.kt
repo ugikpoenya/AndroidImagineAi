@@ -1,8 +1,10 @@
 package com.ugikpoenya.sampleappimagineai
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.ugikpoenya.imagepicker.tools.saveBitmap
 import com.ugikpoenya.imagineai.ImagineAi
 import com.ugikpoenya.imagineai.api.ImagineAiModel
 import com.ugikpoenya.sampleappimagineai.databinding.ActivityMainBinding
@@ -10,6 +12,7 @@ import com.ugikpoenya.sampleappimagineai.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private var binding: ActivityMainBinding? = null
+    var bitmapResult: Bitmap? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -27,13 +30,32 @@ class MainActivity : AppCompatActivity() {
         ImagineAi(this).generationsImages(model) { response, error ->
             if (response != null) {
                 Log.d("LOG", "Success")
-                binding?.imageView?.setImageBitmap(response)
+                bitmapResult = response
+                binding?.imageView?.setImageBitmap(bitmapResult)
             }
             Log.d("LOG", "code " + error?.code)
             Log.d("LOG", "error " + error?.error)
             error?.details?.forEach {
                 Log.d("LOG", "Detail $it")
 
+            }
+        }
+
+        binding?.btnUpscale?.setOnClickListener {
+            val upscaleModel = ImagineAiModel()
+            upscaleModel.image = saveBitmap(bitmapResult)
+            ImagineAi(this).upscale(upscaleModel) { response, error ->
+                if (response != null) {
+                    Log.d("LOG", "Success")
+                    bitmapResult = response
+                    binding?.imageView?.setImageBitmap(bitmapResult)
+                }
+                Log.d("LOG", "code " + error?.code)
+                Log.d("LOG", "error " + error?.error)
+                error?.details?.forEach {
+                    Log.d("LOG", "Detail $it")
+
+                }
             }
         }
     }

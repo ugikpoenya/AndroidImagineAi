@@ -28,8 +28,8 @@ class ImagineAi(context: Context) {
     private fun generateMultipartBody(model: ImagineAiModel): MultipartBody {
         val builder = MultipartBody.Builder()
         builder.setType(MultipartBody.FORM)
-        builder.addFormDataPart("prompt", model.prompt.toString())
-        builder.addFormDataPart("style_id", model.style_id.toString())
+        if (!model.prompt.isNullOrEmpty()) builder.addFormDataPart("prompt", model.prompt.toString())
+        if (model.style_id > 0) builder.addFormDataPart("style_id", model.style_id.toString())
 
         //Text To Image
         if (!model.aspect_ratio.isNullOrEmpty()) builder.addFormDataPart("aspect_ratio", model.aspect_ratio.toString())
@@ -74,7 +74,6 @@ class ImagineAi(context: Context) {
                 response.errorBody()!!.charStream(),
                 ErrorResponse::class.java
             )
-            Log.d("LOG", "errorBody " + errorResponse.error)
             function(null, errorResponse)
         }
     }

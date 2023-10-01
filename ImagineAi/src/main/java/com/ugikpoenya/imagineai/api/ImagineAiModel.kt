@@ -3,7 +3,7 @@ package com.ugikpoenya.imagineai.api
 class ImagineAiModel {
     var prompt: String? = null
     var aspect_ratio: String? = null
-    var style_id: Int? = null
+    var style_id: Int = 0
     var negative_prompt: String? = null
     var cfg: Float = 0f
 
