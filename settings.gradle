@@ -1,0 +1,3 @@
+rootProject.name = "AndroidImagineAi"
+include ':app'
+include ':ImagineAi'
