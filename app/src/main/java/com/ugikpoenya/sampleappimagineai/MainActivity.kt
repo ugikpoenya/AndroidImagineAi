@@ -16,6 +16,9 @@ import com.ugikpoenya.sampleappimagineai.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
     private var binding: ActivityMainBinding? = null
     var bitmapResult: Bitmap? = null
+    val prompt =
+        "Cartoony, happy joe rogan portrait painting of a rabbit character from overwatch, armor, girly pink color scheme design, full shot, asymmetrical, splashscreen, organic painting, sunny day, matte painting, bold shapes, hard edges, cybernetic, moon in background, street art, trending on artstation, by huang guangjian and gil elvgren and sachin teng"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -23,6 +26,24 @@ class MainActivity : AppCompatActivity() {
 
         ImagineAi(this).IMAGINE_API_KEY = ""
         generate()
+    }
+
+    fun remix(v: View) {
+        isLoading(true)
+        val model = ImagineAiModel()
+        model.image = saveBitmap(bitmapResult)
+        model.prompt = prompt
+        model.style_id = 21
+        ImagineAi(this).editsRemix(model) { response, error -> setResult(response, error) }
+    }
+
+    fun variations(v: View) {
+        isLoading(true)
+        val model = ImagineAiModel()
+        model.image = saveBitmap(bitmapResult)
+        model.prompt = prompt
+        model.style_id = 27
+        ImagineAi(this).variations(model) { response, error -> setResult(response, error) }
     }
 
     fun upscale(v: View) {
@@ -38,8 +59,6 @@ class MainActivity : AppCompatActivity() {
 
     fun generate() {
         isLoading(true)
-        val prompt =
-            "Cartoony, happy joe rogan portrait painting of a rabbit character from overwatch, armor, girly pink color scheme design, full shot, asymmetrical, splashscreen, organic painting, sunny day, matte painting, bold shapes, hard edges, cybernetic, moon in background, street art, trending on artstation, by huang guangjian and gil elvgren and sachin teng"
         val model = ImagineAiModel()
         model.prompt = prompt
         model.style_id = 27
