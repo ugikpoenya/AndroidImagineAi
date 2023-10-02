@@ -52,8 +52,8 @@ class ImagineAi(context: Context) {
         //Image Inpaint
         if (!model.neg_prompt.isNullOrEmpty()) builder.addFormDataPart("neg_prompt", model.neg_prompt.toString())
         if (!model.mask.isNullOrEmpty()) {
-            val mask = File(model.image.toString())
-            builder.addFormDataPart("mask ", mask.name, mask.asRequestBody("multipart/form-data".toMediaTypeOrNull()))
+            val mask = File(model.mask.toString())
+            builder.addFormDataPart("mask", mask.name, mask.asRequestBody("multipart/form-data".toMediaTypeOrNull()))
         }
         if (model.inpaint_strength > 0) builder.addFormDataPart("inpaint_strength", model.inpaint_strength.toString())
 
@@ -62,20 +62,6 @@ class ImagineAi(context: Context) {
 
 
         return builder.build()
-    }
-
-    private fun callbackResponse(response: Response<ResponseBody>, function: (response: Bitmap?, error: ErrorResponse?) -> (Unit)) {
-        if (response.isSuccessful) {
-            val bytes = response.body()!!.bytes()
-            val btm = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-            function(btm, null)
-        } else {
-            val errorResponse = Gson().fromJson(
-                response.errorBody()!!.charStream(),
-                ErrorResponse::class.java
-            )
-            function(null, errorResponse)
-        }
     }
 
     class ErrorResponse {
@@ -94,7 +80,18 @@ class ImagineAi(context: Context) {
         val call: Call<ResponseBody> = apiService.generateImages(url, "Bearer $IMAGINE_API_KEY", requestBody)
         call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                callbackResponse(response, function)
+                if (response.isSuccessful) {
+                    val bytes = response.body()!!.bytes()
+                    val btm = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    function(btm, null)
+                } else {
+                    Log.d("LOG", "Error " + response)
+                    val errorResponse = Gson().fromJson(
+                        response.errorBody()!!.charStream(),
+                        ErrorResponse::class.java
+                    )
+                    function(null, errorResponse)
+                }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {

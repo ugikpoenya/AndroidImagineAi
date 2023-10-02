@@ -1,6 +1,7 @@
 package com.ugikpoenya.sampleappimagineai
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -19,6 +20,8 @@ class MainActivity : AppCompatActivity() {
     val prompt =
         "Cartoony, happy joe rogan portrait painting of a rabbit character from overwatch, armor, girly pink color scheme design, full shot, asymmetrical, splashscreen, organic painting, sunny day, matte painting, bold shapes, hard edges, cybernetic, moon in background, street art, trending on artstation, by huang guangjian and gil elvgren and sachin teng"
 
+    var imageSource = ""
+    var imageMask = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -26,22 +29,35 @@ class MainActivity : AppCompatActivity() {
 
         ImagineAi(this).IMAGINE_API_KEY = ""
         generate()
+
+        imageSource = saveBitmap(BitmapFactory.decodeResource(resources, R.drawable.image_source))
+        imageMask = saveBitmap(BitmapFactory.decodeResource(resources, R.drawable.image_source_mask))
+
+    }
+
+    fun inpaint(v: View) {
+        isLoading(true)
+        val model = ImagineAiModel()
+        model.prompt = "Add flower"
+        model.image = imageSource
+        model.mask = imageMask
+        ImagineAi(this).editsInpaint(model) { response, error -> setResult(response, error) }
     }
 
     fun remix(v: View) {
         isLoading(true)
         val model = ImagineAiModel()
-        model.image = saveBitmap(bitmapResult)
-        model.prompt = prompt
-        model.style_id = 21
+        model.image = imageSource
+        model.prompt = "Add flower"
+        model.style_id = 22
         ImagineAi(this).editsRemix(model) { response, error -> setResult(response, error) }
     }
 
     fun variations(v: View) {
         isLoading(true)
         val model = ImagineAiModel()
-        model.image = saveBitmap(bitmapResult)
-        model.prompt = prompt
+        model.image = imageSource
+        model.prompt = "black and white"
         model.style_id = 27
         ImagineAi(this).variations(model) { response, error -> setResult(response, error) }
     }
@@ -49,7 +65,7 @@ class MainActivity : AppCompatActivity() {
     fun upscale(v: View) {
         isLoading(true)
         val model = ImagineAiModel()
-        model.image = saveBitmap(bitmapResult)
+        model.image = imageSource
         ImagineAi(this).upscale(model) { response, error -> setResult(response, error) }
     }
 
