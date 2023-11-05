@@ -86,11 +86,16 @@ class ImagineAi(context: Context) {
                     function(btm, null)
                 } else {
                     Log.d("LOG", "Error " + response)
-                    val errorResponse = Gson().fromJson(
-                        response.errorBody()!!.charStream(),
-                        ErrorResponse::class.java
-                    )
-                    function(null, errorResponse)
+                    try {
+                        val errorResponse = Gson().fromJson(
+                            response.errorBody()!!.charStream(),
+                            ErrorResponse::class.java
+                        )
+                        function(null, errorResponse)
+                    } catch (e: Exception) {
+                        Log.d("LOG", "Parsing Error " + e.message)
+                        function(null, null)
+                    }
                 }
             }
 
